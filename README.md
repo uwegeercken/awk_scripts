@@ -9,10 +9,15 @@ all scripts have comments at the beginning assisting
 in the usage of the script.
 
 2field_permutations.awk			script to output the permutations of two specific fields/columns
+
 capitalize_all_words.awk		script that capitalizes all words. at the same time sets all other characters of the words to lowercase
+
 field_header_position.awk		script to find out the position (column) of a selected field/column
+
 field_highlow.awk			script to output high and low values of a selected field/column
+
 field_minmax_length.awk			script to output the min and max length of selected field/column
+
 field_permutations.awk			script to output the permutations of a specific field/column
 field_query.awk				script to output those lines that correspond to a selected field/column and query string
 fields_trim.awk				script to trim space from beginning and end of each field/column
