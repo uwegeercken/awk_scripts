@@ -1,12 +1,8 @@
-awk_scripts
-===========
 
-this folder contains a collection of awk scripts
-useful for processing data. feel free to  use them,
+collection of awk scripts useful for doing certain checks on e.g. a csv file. feel free to  use them,
 modify them or republish them.
 
-all scripts have comments at the beginning assisting
-in the usage of the script.
+all scripts have comments at the beginning assisting in the usage of the script.
 
 2field_permutations.awk: script to output the permutations of two specific fields/columns
 
@@ -37,5 +33,5 @@ replace_invalid_values.awk: script to replace empty or null values with a defaul
 replace_matches.awk: script replaces matching words of a specified field/column with their subtitutions
 
 
-last update: 2014-09-06 uwe geercken
+last update: 2014-09-07 uwe geercken
 
