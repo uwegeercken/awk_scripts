@@ -13,22 +13,27 @@
 #
 # you may pass a variable "separator" to the script to define the separator between
 # the individual columns of the rows. the default separator is a comma.
+#
+# you may pass a variable "rediskey" to the script to define the base key to be
+# used in redis. A devider (":") and a unique record/row id will be appended to
+# this redis key. Default is "csvfile".
 
 # you may pass a variable "uidcolumn" to the script to define the column (number) 
 # which is used as a unique id for the row. first column is number "1". the default
 # is to use the record (row) number.
 #
-# you can pipe the resulting data directly to Redis, which will be very fast.
+# you can pipe the resulting data directly to Redis, which will lightning fast.
 #
-# example: 
+# examples: 
 #
 #	awk -f csv2redis.awk csf_filename.csv
 # or	awk -v separator="\t" -f csv2redis.awk csf_filename.csv
 # or	awk -v separator="\t" -v uidcolumn=4 -f csv2redis.awk csv_filename.csv
-# or	awk -v separator="\t" -f csv2redis.awk csf_filename.csv | redis-cli --pipe
+# or	awk -v uidcolumn=2 -v rediskey=myfile -f csv2redis.awk csv_filename.csv
+# or	awk -f csv2redis.awk csf_filename.csv | redis-cli --pipe
 #
 #
-# uwe.geercken@dweb.de
+# uwe.geercken@web.de
 #
 # last update: 2019-07-31
 #
@@ -75,11 +80,18 @@ BEGIN {
 		FS=",";
 	}
 
-	# the key to use for redis. a devider and the unique record key will be appended
+	# the key to use for redis. a devider (":") and the unique record key will be appended
 	# to this redis key, so that it forms a unique identifier for the row.
-	redisKey="csvfile"
+	if(rediskey)
+	{
+		redisKey=rediskey
+	}
+	else
+	{
+		redisKey="csvfile"
+	}
 	
-	# which column (number) is used as the unique id for the row
+	# the value of which column (number) to use as the unique id for the row.
 	# if undefined then the record/row number will be used
 	if(uidcolumn)
 	{
@@ -94,7 +106,7 @@ NR <= 1 {
 }
 
 # all other rows
-NR > 1 {
+NR > 1 && $0 {
 	# split the record into its individual values
 	numberOfValues=split($0,values,FS)
 	# the unique id of the record
@@ -111,5 +123,4 @@ NR > 1 {
 	# create the redis command
 	print toRedisProtocol(redisKey, recordUid, numberOfKeysAndValues, keys, values)
 }
-
 
