@@ -44,13 +44,15 @@ function toRedisProtocol(redisKey, recordUid, numberOfKeysAndValues, keys, value
     # number of parts that will be sent to redis:
     # the HMSET command + the redis key + the number of header columns + the number of value columns
     numberOfParts= 1 + 1 + numberOfKeysAndValues
-    # the number of total parts of the command, the length of the redisCommand and the redisCommand
-    part1="*" numberOfParts "\r\n$" length(redisCommand) "\r\n" redisCommand "\r\n"
+    # number of total parts of the command
+    part1="*" numberOfParts "\r\n"
+    # length of the redisCommand and the redisCommand itself
+    part2="$" length(redisCommand) "\r\n" redisCommand "\r\n"
     # length of the redis key + length of the devider + length of the recordUid plus the constructed
     # key of redisKey + devider + recordUid
-    part2="$" length(redisKey) + length(devider)+ length(recordUid) "\r\n" redisKey devider recordUid "\r\n"
+    part3="$" length(redisKey) + length(devider)+ length(recordUid) "\r\n" redisKey devider recordUid "\r\n"
     # intermediate result
-    result = part1 part2
+    result = part1 part2 part3
 
     # the loop creates the appropriate output for each key and value pair (column) of the CSV file
     for(i=1;i<=numberOfValues;i++)
