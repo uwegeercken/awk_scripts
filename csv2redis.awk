@@ -75,10 +75,12 @@ BEGIN {
 		FS=",";
 	}
 
-	# the key to use for redis. the unique record key will be appended
+	# the key to use for redis. a devider and the unique record key will be appended
 	# to this redis key, so that it forms a unique identifier for the row.
-	redisKey="test333"
+	redisKey="csvfile"
+	
 	# which column (number) is used as the unique id for the row
+	# if undefined then the record/row number will be used
 	if(uidcolumn)
 	{
 		recordUidColumnNumber=uidcolumn
