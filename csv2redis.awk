@@ -24,24 +24,31 @@
 #
 # you can pipe the resulting data directly to Redis, which will lightning fast.
 #
+# NOTE: If you have problem with piping a file through awk to redis which contains
+#       special characters such as é, à, ö, ä, etc. then the solution is to add a flag "-b"
+#       to the awk command.
+#
+#
 # examples: 
 #
 #	awk -f csv2redis.awk csf_filename.csv
 # or	awk -v separator="\t" -f csv2redis.awk csf_filename.csv
 # or	awk -v separator="\t" -v uidcolumn=4 -f csv2redis.awk csv_filename.csv
 # or	awk -v uidcolumn=2 -v rediskey=myfile -f csv2redis.awk csv_filename.csv
-# or	awk -f csv2redis.awk csf_filename.csv | redis-cli --pipe
+# or	awk -b -f csv2redis.awk csf_filename.csv | redis-cli --pipe
 #
 #
 # uwe.geercken@web.de
 #
-# last update: 2019-07-31
+# last update: 2019-08-04
 #
 #
 
 # function to construct the redis message according to the redis protocol
 function toRedisProtocol(redisKey, recordUid, numberOfKeysAndValues, keys, values) 
 {
+    #linefeed
+    linefeed="\r\n"
     # redis command
     redisCommand="HMSET"
     # devider between the redis key and the UID of the record/row
@@ -50,20 +57,20 @@ function toRedisProtocol(redisKey, recordUid, numberOfKeysAndValues, keys, value
     # the HMSET command + the redis key + the number of header columns + the number of value columns
     numberOfParts= 1 + 1 + numberOfKeysAndValues
     # number of total parts of the command
-    part1="*" numberOfParts "\r\n"
+    part1="*" numberOfParts linefeed
     # length of the redisCommand and the redisCommand itself
-    part2="$" length(redisCommand) "\r\n" redisCommand "\r\n"
+    part2="$" length(redisCommand) linefeed redisCommand linefeed
     # length of the redis key + length of the devider + length of the recordUid plus the constructed
     # key of redisKey + devider + recordUid
-    part3="$" length(redisKey) + length(devider)+ length(recordUid) "\r\n" redisKey devider recordUid "\r\n"
+    part3="$" length(redisKey) + length(devider)+ length(recordUid) linefeed redisKey devider recordUid linefeed
     # intermediate result
     result = part1 part2 part3
 
     # the loop creates the appropriate output for each key and value pair (column) of the CSV file
     for(i=1;i<=numberOfValues;i++)
     {
-    	result= result "$" length(keys[i]) "\r\n" keys[i] "\r\n"
-	result= result "$" length(values[i]) "\r\n" values[i] "\r\n"
+    	result= result "$" length(keys[i]) linefeed keys[i] linefeed
+	result= result "$" length(values[i]) linefeed values[i] linefeed
     }
     return result
 } 
@@ -121,6 +128,6 @@ NR > 1 && $0 {
 	# number of keys and values
 	numberOfKeysAndValues = numberOfKeys + numberOfValues
 	# create the redis command
-	print toRedisProtocol(redisKey, recordUid, numberOfKeysAndValues, keys, values)
+	printf "%s", toRedisProtocol(redisKey, recordUid, numberOfKeysAndValues, keys, values)
 }
 
